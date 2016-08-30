@@ -55,8 +55,8 @@ def index():
     return render_template('layout.html', message=random_message, feed_count=feed_count)
 
 
-@page.route('/seed')
-def seed():
+@page.route('/clean')
+def clean():
     """
     Reset the database and seed it with a few messages.
 
@@ -68,8 +68,14 @@ def seed():
     messages = [
         "Thanks good sir. I'm feeling quite healthy!",
         'Thanks for the meal buddy.',
-        "Please stop feeding me. I'm getting huge!"
+        "Please stop feeding me. I'm getting huge!",
+	"I told you to stop!",
+	"Stop FFS!",
+	"OK, I'm gonna cry now"
     ]
+
+    redis_store.flushall()
+
 
     for message in messages:
         feedback = Feedback(message=message)
