@@ -1,49 +1,51 @@
-postgres:
-  image: postgres:latest
-  environment:
-    POSTGRES_USER: mobydock
-    POSTGRES_PASSWORD: yourpassword
-  ports:
-    - '5432:5432'
-  volumes:
-    - ~/.docker-volumes/mobydock/postgresql/data:/var/lib/postgresql/data
+version: '2'
 
-redis:
-  image: redis:2.8.22
-  ports:
-    - '6379:6379'
-  volumes:
-    - ~/.docker-volumes/mobydock/redis/data:/var/lib/redis/data
-
-
-nginx:
-  build: ../Nginx
-  links:
-    - mobydock
-  ports:
-    - '80:80'
-    - '443:443'
-
-mobydock:
-  build: .
-  command: gunicorn -b 0.0.0.0:8000 --reload --access-logfile - "mobydock.app:create_app()"
-  environment:
-    PYTHONUNBUFFERED: true
-  links:
-    - postgres
-    - redis
-  volumes:
-    - .:/mobydock
-  ports:
-    - '8000:8000'
-
-cadvisor:
-  image: google/cadvisor:latest
-  ports: 
-    - '8080:8080' 
-  volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: mobydock
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - '5432:5432'
+    volumes:
+      - mobydock-postgres:/var/lib/postgresql/data
+  
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - mobydock-redis:/var/lib/redis/data
+  
+  
+  nginx:
+    build: ../Nginx
+    ports:
+      - '80:80'
+      - '443:443'
+  
+  mobydock:
+    build: .
+    command: gunicorn -b 0.0.0.0:8000 --reload --access-logfile - "mobydock.app:create_app()"
+    environment:
+     - PYTHONUNBUFFERED=True
+    volumes:
+      - .:/mobydock
+    ports:
+      - '8000:8000'
+  
+  cadvisor:
+    image: google/cadvisor:latest
+    ports: 
+      - '8080:8080' 
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+  
+volumes:
+  mobydock-postgres:
+  mobydock-redis:
 
