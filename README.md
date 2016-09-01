@@ -7,3 +7,6 @@ Steps involved:
 * Simply run the docker-composer and all containers will be build 
 
 EOF
+
+
+BINGO
